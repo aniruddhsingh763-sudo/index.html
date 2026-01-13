@@ -10,16 +10,22 @@
         :root { --accent: #bf00ff; --cyan: #00f2ff; --bg: #0d0b1a; }
         body { background: var(--bg); color: white; font-family: 'Rajdhani', sans-serif; min-height: 100vh; overflow-x: hidden; }
         
-        /* Fixed Profile Photo */
-        .profile-img-box { width: 62px; height: 62px; border-radius: 50%; border: 2.5px solid var(--accent); box-shadow: 0 0 15px var(--accent); overflow: hidden; background: #222; }
+        /* Profile Image with Neon Glow */
+        .profile-img-box { 
+            width: 65px; height: 65px; 
+            border-radius: 50%; 
+            border: 3px solid var(--accent); 
+            box-shadow: 0 0 20px var(--accent);
+            overflow: hidden;
+            background: #1a1a2e;
+        }
         .profile-img-box img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Neon UI Pattern */
-        .neon-border { border: 1.5px solid rgba(191, 0, 255, 0.4); background: rgba(191, 0, 255, 0.05); }
+        /* Neon UI Elements */
+        .neon-border { border: 1.5px solid rgba(191, 0, 255, 0.5); background: rgba(191, 0, 255, 0.05); }
         .neon-cyan { border: 1.5px solid rgba(0, 242, 255, 0.4); background: rgba(0, 242, 255, 0.05); }
-        .glass-card { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.05); transition: 0.3s; }
         
-        /* Auto-Loop Toggle */
+        /* Auto-Loop Toggle Switch */
         .switch { position: relative; display: inline-block; width: 38px; height: 20px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; }
@@ -27,9 +33,9 @@
         input:checked + .slider { background-color: #1DB954; }
         input:checked + .slider:before { transform: translateX(18px); }
 
-        /* Floating Player */
-        .fixed-player { position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(180deg, #141228, #0d0b1a); backdrop-filter: blur(25px); border-top: 1px solid rgba(255,255,255,0.1); padding: 18px 22px; z-index: 1000; }
-        input[type="range"] { accent-color: #1DB954; }
+        /* Bottom Player UI */
+        .fixed-player { position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(180deg, #141228, #0d0b1a); backdrop-filter: blur(25px); border-top: 1px solid rgba(255,255,255,0.1); padding: 18px 22px; z-index: 999; }
+        input[type="range"] { accent-color: #1DB954; cursor: pointer; }
     </style>
 </head>
 <body class="max-w-md mx-auto pb-44">
@@ -40,52 +46,52 @@
         </div>
         <div>
             <h1 class="text-2xl font-bold font-['Orbitron'] tracking-tighter">Aj BEATs Studio</h1>
-            <p class="text-[9px] text-gray-500 tracking-[3px] uppercase">Universal Studio</p>
+            <p class="text-[9px] text-gray-500 tracking-[4px] uppercase">Universal Studio</p>
         </div>
     </div>
 
     <div class="px-6 mb-8">
-        <input type="text" id="searchInput" placeholder="Search YouTube Music..." 
-            class="w-full bg-white rounded-lg py-2.5 px-4 text-black text-sm font-semibold outline-none focus:ring-2 focus:ring-purple-500">
+        <input type="text" id="searchInput" placeholder="Search Studio Beats..." 
+            class="w-full bg-white rounded-lg py-2.5 px-4 text-black text-sm font-bold outline-none shadow-lg">
     </div>
 
     <div class="grid grid-cols-2 gap-4 px-6 mb-10">
-        <div class="neon-cyan p-4 rounded-xl flex items-center gap-3 cursor-pointer" onclick="search('New Haryanvi Songs')">
-            <span>🚜</span> <span class="text-[10px] font-bold">HARYANI TECHAN</span>
+        <div class="neon-cyan p-4 rounded-xl flex items-center gap-3 cursor-pointer" onclick="search('Haryanvi')">
+            <span class="text-xl">🚜</span> <span class="text-[10px] font-bold uppercase">Haryani Techan</span>
         </div>
-        <div class="neon-border p-4 rounded-xl flex items-center gap-3 cursor-pointer" onclick="search('Trending Punjabi Hits')">
-            <span>🎵</span> <span class="text-[10px] font-bold uppercase">Punjabi Beats</span>
+        <div class="neon-border p-4 rounded-xl flex items-center gap-3 cursor-pointer" onclick="search('Bollywood')">
+            <span class="text-xl">🎵</span> <span class="text-[10px] font-bold uppercase">Old Gold Hits</span>
         </div>
     </div>
 
     <div class="px-6 flex justify-between items-center mb-6">
-        <h3 id="listTitle" class="text-[11px] font-bold opacity-60 uppercase tracking-widest">Trending Studio Beats (15)</h3>
-        <button id="shuffleBtn" class="bg-green-500 text-black text-[10px] px-4 py-1.5 rounded font-bold">🔀 SHUFFLE</button>
+        <h3 id="listTitle" class="text-[11px] font-bold opacity-60 uppercase tracking-widest">Trending Studio (15)</h3>
+        <button id="shuffleBtn" class="bg-[#1DB954] text-black text-[10px] px-5 py-1.5 rounded-md font-bold transition-all active:scale-95">🔀 SHUFFLE</button>
     </div>
 
     <div id="songList" class="px-6 space-y-4">
-        <div class="text-center py-20 opacity-20 text-xs tracking-widest animate-pulse">BOOTING STUDIO...</div>
+        <div class="text-center py-20 opacity-20 text-xs tracking-widest animate-pulse uppercase">Syncing Studio Nodes...</div>
     </div>
 
-    <div id="player" class="fixed-player">
+    <div id="player" class="fixed-player shadow-2xl">
         <div class="flex items-center justify-between gap-4 mb-4">
             <div class="flex items-center gap-3 overflow-hidden w-1/2">
                 <img id="pArt" src="https://via.placeholder.com/50" class="w-12 h-12 rounded-xl border border-white/10 shadow-lg">
                 <div class="truncate">
-                    <h4 id="pTitle" class="text-xs font-bold truncate">Select Track</h4>
-                    <p id="pArtist" class="text-[9px] text-gray-500 truncate">Aj Beats Studio</p>
+                    <h4 id="pTitle" class="text-xs font-bold truncate text-white">Select a track</h4>
+                    <p id="pArtist" class="text-[9px] text-gray-400 truncate italic">Aj Beats Studio</p>
                 </div>
             </div>
             <div class="flex items-center gap-6">
                 <button id="playBtn" class="text-4xl text-white">▶</button>
-                <button id="nextBtn" class="text-xl opacity-60">⏭</button>
+                <button id="nextBtn" class="text-xl opacity-60 hover:opacity-100">⏭</button>
             </div>
             <div class="flex items-center gap-4">
-                <button id="loopMain" class="text-xl opacity-70">🔁</button>
+                <a id="downBtn" href="#" class="text-xl opacity-70">⬇️</a>
                 <button class="text-xl opacity-70">🌙</button>
             </div>
         </div>
-        <input type="range" id="seek" value="0" class="w-full h-1 cursor-pointer">
+        <input type="range" id="seek" value="0" class="w-full h-1">
     </div>
 
     <audio id="mainAudio"></audio>
@@ -98,72 +104,63 @@
         let currentPlaylist = [];
         let currentIndex = 0;
 
-        // Using a Reliable YouTube Search Proxy (Invidious)
-        const SEARCH_API = "https://inv.tux.pizza/api/v1/search?q=";
-        const STREAM_BASE = "https://inv.tux.pizza/latest_version?id=";
+        // Reliable API for GitHub Pages
+        const API_KEY = "YTk2NzliNmEtM2I4Zi00ZmExLTkyZjEtM2VlYmYwN2VlNDA3"; 
+        const API_URL = "https://api.napster.com/v2.2/search?apikey=" + API_KEY + "&type=track&query=";
 
-        window.onload = () => search("Trending Songs India 2025");
+        // 1. HOME SCREEN: Load 15 Songs on Start
+        window.onload = () => search("Trending India");
 
         searchInput.addEventListener('keypress', (e) => {
             if(e.key === 'Enter') {
                 search(searchInput.value);
-                document.getElementById('listTitle').innerText = "SEARCH RESULTS";
+                document.getElementById('listTitle').innerText = "STUDIO RESULTS";
             }
         });
 
         async function search(q) {
-            songList.innerHTML = '<div class="text-center py-10 opacity-30 text-xs tracking-widest uppercase">Fetching Audio...</div>';
+            songList.innerHTML = '<div class="text-center py-10 opacity-30 text-xs tracking-widest uppercase">Fetching Beats...</div>';
             try {
-                const res = await fetch(SEARCH_API + encodeURIComponent(q) + "&type=video");
-                const results = await res.json();
-                
-                // Filtering 15 songs
-                currentPlaylist = results.slice(0, 15).map(item => ({
-                    id: item.videoId,
-                    title: item.title,
-                    artist: item.author,
-                    thumbnail: item.videoThumbnails[1].url
-                }));
-                
+                const res = await fetch(API_URL + encodeURIComponent(q));
+                const json = await res.json();
+                currentPlaylist = json.search.data.tracks.slice(0, 15);
                 render(currentPlaylist);
             } catch (err) {
-                songList.innerHTML = '<div class="text-center py-10 text-red-500 text-xs">CONNECTION ERROR. PLEASE REFRESH.</div>';
+                songList.innerHTML = '<div class="text-center py-10 text-red-500 text-xs uppercase">Network Error. Refresh Studio.</div>';
             }
         }
 
         function render(songs) {
             songList.innerHTML = '';
             songs.forEach((s, i) => {
+                const thumbUrl = `https://api.napster.com/imageserver/v2/albums/${s.albumId}/images/200x200.jpg`;
                 const div = document.createElement('div');
-                div.className = "glass-card p-4 flex items-center gap-4 rounded-2xl cursor-pointer active:scale-95 transition-all";
+                div.className = "bg-white/5 p-4 flex items-center gap-4 rounded-2xl cursor-pointer transition-all border border-white/5 hover:bg-white/10";
                 div.innerHTML = `
-                    <img src="${s.thumbnail}" class="w-14 h-14 rounded-xl shadow-lg border border-white/5">
+                    <img src="${thumbUrl}" onerror="this.src='https://via.placeholder.com/50'" class="w-14 h-14 rounded-xl shadow-lg border border-white/5">
                     <div class="flex-grow overflow-hidden">
-                        <h4 class="text-sm font-bold truncate">${s.title}</h4>
-                        <p class="text-[10px] text-gray-500 truncate">${s.artist}</p>
+                        <h4 class="text-sm font-bold truncate tracking-wide">${s.name}</h4>
+                        <p class="text-[10px] text-gray-500 truncate italic">${s.artistName}</p>
                     </div>
-                    <label class="switch"><input type="checkbox" onchange="audio.loop=this.checked"><span class="slider"></span></label>
+                    <div class="flex flex-col items-center">
+                        <span class="text-[7px] opacity-40 mb-1 font-bold">LOOP</span>
+                        <label class="switch"><input type="checkbox" onchange="audio.loop=this.checked"><span class="slider"></span></label>
+                    </div>
                 `;
-                div.onclick = (e) => { 
-                    if(e.target.tagName !== 'INPUT' && e.target.className !== 'slider') { 
-                        currentIndex = i; 
-                        play(s); 
-                    }
-                };
+                div.onclick = (e) => { if(e.target.tagName !== 'INPUT' && e.target.className !== 'slider') { currentIndex = i; play(s, thumbUrl); } };
                 songList.appendChild(div);
             });
         }
 
-        function play(s) {
-            // Automatic Stop & Switch logic
+        // 2. AUTO-STOP: Stop Previous & Start New Automatically
+        function play(s, thumb) {
             audio.pause();
-            audio.src = STREAM_BASE + s.id;
-            
-            document.getElementById('pTitle').innerText = s.title;
-            document.getElementById('pArt').src = s.thumbnail;
-            document.getElementById('pArtist').innerText = s.artist;
-            
-            audio.play().catch(() => alert("This track is restricted. Try another one!"));
+            audio.src = s.previewURL;
+            document.getElementById('pTitle').innerText = s.name;
+            document.getElementById('pArt').src = thumb;
+            document.getElementById('pArtist').innerText = s.artistName;
+            document.getElementById('downBtn').href = s.previewURL;
+            audio.play();
             playBtn.innerText = "II";
         }
 
@@ -173,15 +170,21 @@
         };
 
         document.getElementById('nextBtn').onclick = () => {
-            if(currentIndex < currentPlaylist.length - 1) play(currentPlaylist[++currentIndex]);
+            if(currentIndex < currentPlaylist.length - 1) {
+                const nextS = currentPlaylist[++currentIndex];
+                const thumb = `https://api.napster.com/imageserver/v2/albums/${nextS.albumId}/images/200x200.jpg`;
+                play(nextS, thumb);
+            }
         };
 
         audio.ontimeupdate = () => { document.getElementById('seek').value = (audio.currentTime / audio.duration) * 100 || 0; };
         document.getElementById('seek').oninput = (e) => { audio.currentTime = (e.target.value / 100) * audio.duration; };
 
         document.getElementById('shuffleBtn').onclick = () => {
-            let rand = Math.floor(Math.random() * currentPlaylist.length);
-            play(currentPlaylist[rand]);
+            const randIdx = Math.floor(Math.random() * currentPlaylist.length);
+            const randS = currentPlaylist[randIdx];
+            const thumb = `https://api.napster.com/imageserver/v2/albums/${randS.albumId}/images/200x200.jpg`;
+            play(randS, thumb);
         };
     </script>
 </body>
