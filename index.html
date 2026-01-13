@@ -17,10 +17,11 @@
         input:checked + .slider { background-color: #1DB954; }
         .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider:before { transform: translateX(16px); }
-        .glass-player { background: rgba(13, 11, 26, 0.98); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.1); }
+        .glass-player { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(13, 11, 26, 0.98); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.1); padding: 15px; z-index: 100; }
+        input[type="range"] { accent-color: #1DB954; width: 100%; height: 4px; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
-<body class="max-w-md mx-auto pb-36">
+<body class="max-w-md mx-auto pb-40">
 
     <div class="p-5 flex items-center gap-4">
         <div class="relative w-14 h-14 rounded-full profile-border overflow-hidden">
@@ -34,7 +35,7 @@
 
     <div class="px-5 mb-6">
         <input type="text" id="searchInput" placeholder="Search songs or artists..." 
-            class="w-full bg-[#f0f0f0] rounded-md p-2.5 pl-4 text-black text-sm outline-none">
+            class="w-full bg-white rounded-md p-2.5 pl-4 text-black text-sm outline-none focus:ring-2 focus:ring-purple-500">
     </div>
 
     <div class="grid grid-cols-2 gap-4 px-5 mb-8">
@@ -46,20 +47,21 @@
         </div>
     </div>
 
-    <div class="px-5 flex justify-between items-center mb-4 text-[10px] font-bold opacity-60">
-        <span id="listTitle">TRENDING NOW</span>
-        <button id="shuffleBtn" class="bg-green-500 text-black px-4 py-1.5 rounded-md">🔀 SHUFFLE</button>
+    <div class="px-5 flex justify-between items-center mb-4">
+        <h3 id="listTitle" class="text-[10px] font-bold opacity-60 uppercase tracking-widest">Trending Now</h3>
+        <button id="shuffleBtn" class="bg-green-500 text-black px-4 py-1.5 rounded-md font-bold text-[9px]">🔀 SHUFFLE</button>
     </div>
 
     <div id="songList" class="px-5 space-y-3">
-        </div>
+        <p class="text-center py-10 opacity-30 text-xs">CONNECTING TO STUDIO...</p>
+    </div>
 
-    <div id="player" class="fixed bottom-0 left-0 right-0 glass-player p-4 px-6 z-50">
+    <div id="player" class="glass-player shadow-2xl">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-3 overflow-hidden w-1/2">
-                <img id="pArt" src="https://via.placeholder.com/40" class="w-10 h-10 rounded-lg">
+                <img id="pArt" src="https://via.placeholder.com/40" class="w-10 h-10 rounded-lg shadow-lg">
                 <div class="truncate">
-                    <h4 id="pTitle" class="text-xs font-bold truncate italic">Select a track</h4>
+                    <h4 id="pTitle" class="text-xs font-bold truncate">Ready to Play</h4>
                     <p id="pArtist" class="text-[9px] text-gray-500 truncate">Aj Beats Studio</p>
                 </div>
             </div>
@@ -72,7 +74,7 @@
                 <button id="loopBtn" class="text-lg">🔁</button>
             </div>
         </div>
-        <input type="range" id="seek" class="w-full h-1 mt-4 accent-green-500" value="0">
+        <input type="range" id="seek" value="0" class="mt-4">
     </div>
 
     <audio id="mainAudio"></audio>
@@ -81,29 +83,40 @@
         const audio = document.getElementById('mainAudio');
         const songList = document.getElementById('songList');
         const playBtn = document.getElementById('playBtn');
+        const searchInput = document.getElementById('searchInput');
         let currentPlaylist = [];
         let currentIndex = 0;
 
-        window.onload = () => search("Latest Trending Hindi", true);
-
-        document.getElementById('searchInput').onkeypress = (e) => {
-            if(e.key === 'Enter') { search(e.target.value); document.getElementById('listTitle').innerText = "RESULTS"; }
+        // Trending Songs On Load
+        window.onload = () => {
+            search("Trending Haryanvi Punjabi", true);
         };
 
-        async function search(q, isInitial = false) {
+        searchInput.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') {
+                search(searchInput.value);
+                document.getElementById('listTitle').innerText = "RESULTS";
+            }
+        });
+
+        async function search(q) {
             try {
-                const res = await fetch(`https://saavn.me/search/songs?query=${q}`);
+                const res = await fetch(`https://saavn.me/search/songs?query=${encodeURIComponent(q)}`);
                 const d = await res.json();
-                currentPlaylist = d.data.results;
-                render(currentPlaylist);
-            } catch(err) { console.log("Network error"); }
+                if(d.status === "SUCCESS") {
+                    currentPlaylist = d.data.results;
+                    renderSongs(currentPlaylist);
+                }
+            } catch(err) {
+                songList.innerHTML = '<p class="text-center text-red-500 text-xs">NETWORK ERROR</p>';
+            }
         }
 
-        function render(songs) {
+        function renderSongs(songs) {
             songList.innerHTML = '';
             songs.forEach((s, i) => {
                 const div = document.createElement('div');
-                div.className = "bg-white/5 p-3 rounded-2xl flex items-center gap-4 border border-white/5 hover:bg-white/10 cursor-pointer";
+                div.className = "bg-white/5 p-3 rounded-2xl flex items-center gap-4 border border-white/5 hover:bg-white/10 cursor-pointer active:scale-95 transition-all";
                 div.innerHTML = `
                     <img src="${s.image[1].link}" class="w-12 h-12 rounded-xl">
                     <div class="flex-grow overflow-hidden">
@@ -112,14 +125,19 @@
                     </div>
                     <label class="switch"><input type="checkbox" onchange="audio.loop=this.checked"><span class="slider"></span></label>
                 `;
-                div.onclick = (e) => { if(e.target.tagName !== 'INPUT') { currentIndex = i; play(s); } };
+                div.onclick = (e) => { 
+                    if(e.target.tagName !== 'INPUT' && e.target.className !== 'slider') {
+                        currentIndex = i;
+                        play(s); 
+                    }
+                };
                 songList.appendChild(div);
             });
         }
 
         function play(s) {
-            audio.pause(); // Stops previous song automatically
-            audio.src = s.downloadUrl[4].link;
+            audio.pause();
+            audio.src = s.downloadUrl[4].link; // 320kbps
             document.getElementById('pTitle').innerText = s.name;
             document.getElementById('pArtist').innerText = s.primaryArtists;
             document.getElementById('pArt').src = s.image[1].link;
@@ -133,12 +151,17 @@
             else { audio.pause(); playBtn.innerText = "▶"; }
         };
 
-        audio.ontimeupdate = () => { document.getElementById('seek').value = (audio.currentTime / audio.duration) * 100 || 0; };
-        document.getElementById('seek').oninput = (e) => { audio.currentTime = (e.target.value / 100) * audio.duration; };
+        audio.ontimeupdate = () => {
+            document.getElementById('seek').value = (audio.currentTime / audio.duration) * 100 || 0;
+        };
+
+        document.getElementById('seek').oninput = (e) => {
+            audio.currentTime = (e.target.value / 100) * audio.duration;
+        };
 
         document.getElementById('shuffleBtn').onclick = () => {
-            currentIndex = Math.floor(Math.random() * currentPlaylist.length);
-            play(currentPlaylist[currentIndex]);
+            let random = Math.floor(Math.random() * currentPlaylist.length);
+            play(currentPlaylist[random]);
         };
     </script>
 </body>
