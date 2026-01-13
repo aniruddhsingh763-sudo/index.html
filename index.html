@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aj BEATs Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #0d0b1a; color: white; font-family: 'Rajdhani', sans-serif; background-image: linear-gradient(180deg, #1a1635 0%, #0d0b1a 100%); min-height: 100vh; overflow-x: hidden; }
+        .profile-border { border: 2px solid #bf00ff; box-shadow: 0 0 15px #bf00ff88; }
+        .neon-box-cyan { border: 1px solid #00f2ff66; background: rgba(255,255,255,0.03); }
+        .neon-box-purple { border: 1px solid #bf00ff66; background: rgba(255,255,255,0.03); }
+        .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 20px; }
+        input:checked + .slider { background-color: #1DB954; }
+        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider:before { transform: translateX(16px); }
+        .glass-player { background: rgba(13, 11, 26, 0.98); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.1); }
+        ::-webkit-scrollbar { width: 0px; }
+    </style>
+</head>
+<body class="max-w-md mx-auto pb-36">
+
+    <div class="p-5 flex items-center gap-4">
+        <div class="relative w-14 h-14 rounded-full profile-border overflow-hidden">
+            <img src="https://telegra.ph/file/1897b76435f3083896584.jpg" class="w-full h-full object-cover" alt="Aj Profile">
+        </div>
+        <div>
+            <h1 class="text-xl font-bold font-['Orbitron'] tracking-tighter">Aj BEATs Studio</h1>
+            <p class="text-[9px] text-gray-500 uppercase tracking-widest">Universal Studio</p>
+        </div>
+    </div>
+
+    <div class="px-5 mb-6">
+        <input type="text" id="searchInput" placeholder="Search songs or artists..." 
+            class="w-full bg-[#f0f0f0] rounded-md p-2.5 pl-4 text-black text-sm outline-none focus:ring-2 focus:ring-purple-500">
+    </div>
+
+    <div class="px-5 mb-4 flex items-center gap-2">
+        <div class="h-4 w-1 bg-green-500"></div>
+        <h2 class="font-bold text-xs uppercase tracking-widest">Discover Soundspheres 🔥</h2>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 px-5 mb-8">
+        <div class="neon-box-cyan p-4 rounded-xl flex items-center gap-3">
+            <span>🚜</span> <span class="text-[10px] font-bold uppercase">Haryani Techan</span>
+        </div>
+        <div class="neon-box-purple p-4 rounded-xl flex items-center gap-3">
+            <span>🎵</span> <span class="text-[10px] font-bold uppercase">Old Gold Hits</span>
+        </div>
+    </div>
+
+    <div class="px-5 flex justify-between items-center mb-4">
+        <h3 id="listTitle" class="text-[10px] font-bold opacity-60 uppercase tracking-widest">Trending Now</h3>
+        <button id="shuffleBtn" class="text-[9px] bg-green-500 text-black font-bold px-4 py-1.5 rounded-md active:scale-95 transition-all">🔀 SHUFFLE</button>
+    </div>
+
+    <div id="songList" class="px-5 space-y-3">
+        <p class="text-center py-10 opacity-30 text-xs tracking-widest">LOADING BEATS...</p>
+    </div>
+
+    <div id="player" class="fixed bottom-0 left-0 right-0 glass-player p-4 px-6 z-50 shadow-2xl">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3 overflow-hidden w-1/2">
+                <img id="pArt" src="https://via.placeholder.com/40" class="w-10 h-10 rounded-lg shadow-lg">
+                <div class="truncate">
+                    <h4 id="pTitle" class="text-xs font-bold truncate">Not Playing</h4>
+                    <p id="pArtist" class="text-[9px] text-gray-500 truncate">Select a track</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <button id="playBtn" class="text-3xl text-white">▶</button>
+                <button id="nextBtn" class="text-sm opacity-60 hover:opacity-100">⏭</button>
+            </div>
+            <div class="flex gap-4 opacity-50">
+                <a id="downBtn" href="#" download>⬇️</a>
+                <button id="loopBtn" class="text-lg">🔁</button>
+            </div>
+        </div>
+        <input type="range" id="seek" class="w-full h-1 mt-4 accent-green-500 cursor-pointer" value="0">
+    </div>
+
+    <audio id="mainAudio"></audio>
+
+    <script>
+        const audio = document.getElementById('mainAudio');
+        const songList = document.getElementById('songList');
+        const playBtn = document.getElementById('playBtn');
+        const listTitle = document.getElementById('listTitle');
+        let currentPlaylist = [];
+        let currentIndex = 0;
+
+        // Load Trending Songs on Startup
+        window.onload = () => {
+            search("Trending Songs 2024", true);
+        };
+
+        // Search Trigger
+        document.getElementById('searchInput').onkeypress = (e) => {
+            if(e.key === 'Enter') {
+                search(e.target.value);
+                listTitle.innerText = "Search Results";
+            }
+        };
+
+        async function search(q, isInitial = false) {
+            if(!isInitial) songList.innerHTML = '<p class="text-center py-10 opacity-30 text-xs">SEARCHING...</p>';
+            try {
+                const res = await fetch(`https://saavn.me/search/songs?query=${q}`);
+                const d = await res.json();
+                currentPlaylist = d.data.results;
+                render(currentPlaylist);
+            } catch(err) {
+                songList.innerHTML = '<p class="text-center py-10 text-red-500 text-xs">CONNECTION ERROR</p>';
+            }
+        }
+
+        function render(songs) {
+            songList.innerHTML = '';
+            songs.forEach((s, i) => {
+                const div = document.createElement('div');
+                div.className = "bg-white/5 p-3 rounded-2xl flex items-center gap-4 border border-white/5 hover:bg-white/10 active:scale-95 transition-all cursor-pointer";
+                div.innerHTML = `
+                    <img src="${s.image[1].link}" class="w-12 h-12 rounded-xl shadow-md">
+                    <div class="flex-grow overflow-hidden">
+                        <h4 class="text-sm font-bold truncate">${s.name}</h4>
+                        <p class="text-[10px] text-gray-500">${s.primaryArtists}</p>
+                    </div>
+                    <div class="text-right">
+                        <label class="switch"><input type="checkbox" onchange="audio.loop=this.checked"><span class="slider"></span></label>
+                    </div>
+                `;
+                div.onclick = (e) => { 
+                    if(e.target.tagName !== 'INPUT' && e.target.className !== 'slider') {
+                        currentIndex = i;
+                        play(s); 
+                    }
+                };
+                songList.appendChild(div);
+            });
+        }
+
+        function play(s) {
+            // STOP PREVIOUS & START NEW (Automatic)
+            audio.pause();
+            audio.src = ''; 
+            audio.src = s.downloadUrl[4].link; // High Quality
+            
+            document.getElementById('pTitle').innerText = s.name;
+            document.getElementById('pArtist').innerText = s.primaryArtists;
+            document.getElementById('pArt').src = s.image[1].link;
+            document.getElementById('downBtn').href = s.downloadUrl[4].link;
+            
+            audio.play();
+            playBtn.innerText = "⏸";
+        }
+
+        playBtn.onclick = () => {
+            if(audio.paused) { audio.play(); playBtn.innerText = "⏸"; }
+            else { audio.pause(); playBtn.innerText = "▶"; }
+        };
+
+        document.getElementById('nextBtn').onclick = () => {
+            if(currentIndex < currentPlaylist.length - 1) {
+                currentIndex++;
+                play(currentPlaylist[currentIndex]);
+            }
+        };
+
+        audio.ontimeupdate = () => {
+            document.getElementById('seek').value = (audio.currentTime / audio.duration) * 100 || 0;
+        };
+        
+        document.getElementById('seek').oninput = (e) => {
+            audio.currentTime = (e.target.value / 100) * audio.duration;
+        };
+
+        document.getElementById('shuffleBtn').onclick = () => {
+            currentIndex = Math.floor(Math.random() * currentPlaylist.length);
+            play(currentPlaylist[currentIndex]);
+        };
+    </script>
+</body>
+</html>
